@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Quotes</string>
+    <string name="give_a_quote">Give a quote!</string>
+    <string name="internet">Internet</string>
+    <string name="service">Service</string>
+    <string name="no_connection">Connect with me!</string>
+    <string name="service_unavailable">Sorry! Can not give you a quote</string>
+</resources>
