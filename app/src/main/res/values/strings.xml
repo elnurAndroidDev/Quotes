@@ -5,4 +5,6 @@
     <string name="service">Service</string>
     <string name="no_connection">Connect with me!</string>
     <string name="service_unavailable">Sorry! Can not give you a quote</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
