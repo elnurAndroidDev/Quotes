@@ -7,7 +7,7 @@ class RetrofitInstance {
     companion object {
         private val retrofit by lazy {
             Retrofit.Builder()
-                .baseUrl("https://zenquotes.io/api")
+                .baseUrl("https://zenquotes.io/api/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         }

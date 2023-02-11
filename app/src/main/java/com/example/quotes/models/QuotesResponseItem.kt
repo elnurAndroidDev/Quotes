@@ -5,4 +5,6 @@ data class QuotesResponseItem(
     val c: String,
     val h: String,
     val q: String
-)
+) {
+    fun toQuote() = Quote(author = a, content = q)
+}

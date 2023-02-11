@@ -1,5 +1,6 @@
 package com.example.quotes.ui
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +16,12 @@ class QuotesViewModel(
 
     val quotes: MutableLiveData<Resource<QuotesResponse>> = MutableLiveData()
 
-    fun getQuotesList() = viewModelScope.launch {
+    init {
+        Log.d("MyTag", "init vm")
+        getQuotesList()
+    }
+
+    private fun getQuotesList() = viewModelScope.launch {
         quotes.postValue(Resource.Loading())
         val response = repository.getQuotesList()
         quotes.postValue(handleQuotesResponse(response))

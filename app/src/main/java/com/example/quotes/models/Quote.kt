@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 )
 data class Quote(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int? = null,
     val author: String,
     val content: String
 )
