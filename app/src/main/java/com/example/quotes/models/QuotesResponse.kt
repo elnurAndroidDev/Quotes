@@ -1,3 +1,3 @@
 package com.example.quotes.models
 
-class QuotesResponse: ArrayList<QuotesResponseItem>()
+class QuotesResponse: ArrayList<QuoteServerModel>()

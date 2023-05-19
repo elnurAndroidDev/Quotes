@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.quotes.models.Quote
+import com.example.quotes.models.QuoteDBModel
 
 
 @Database(
-    entities = [Quote::class],
+    entities = [QuoteDBModel::class],
     version = 1
 )
 abstract class QuotesDatabase : RoomDatabase() {

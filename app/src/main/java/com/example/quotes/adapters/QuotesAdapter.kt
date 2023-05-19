@@ -1,48 +1,57 @@
 package com.example.quotes.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.quotes.R
-import com.example.quotes.models.Quote
-import kotlinx.android.synthetic.main.item_quote.view.*
+import com.example.quotes.databinding.QuoteItemBinding
+import com.example.quotes.models.QuoteUiModel
+import com.example.quotes.ui.QuoteClickListener
 
-class QuotesAdapter : RecyclerView.Adapter<QuotesAdapter.QuotesViewHolder>() {
+class QuotesAdapter(private val quoteClickListener: QuoteClickListener) :
+    RecyclerView.Adapter<QuotesAdapter.QuoteViewHolder>() {
 
-    inner class QuotesViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class QuoteViewHolder(val binding: QuoteItemBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
-    private val diffCallback = object : DiffUtil.ItemCallback<Quote>() {
-        override fun areContentsTheSame(oldItem: Quote, newItem: Quote): Boolean =
+    private val diffCallback = object : DiffUtil.ItemCallback<QuoteUiModel>() {
+        override fun areContentsTheSame(oldItem: QuoteUiModel, newItem: QuoteUiModel): Boolean =
             oldItem.content == newItem.content
 
-        override fun areItemsTheSame(oldItem: Quote, newItem: Quote): Boolean =
+        override fun areItemsTheSame(oldItem: QuoteUiModel, newItem: QuoteUiModel): Boolean =
             oldItem == newItem
     }
 
     val differ = AsyncListDiffer(this, diffCallback)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuotesViewHolder {
-        return QuotesViewHolder(
-            LayoutInflater.from(parent.context).inflate(
-                R.layout.item_quote,
-                parent,
-                false
-            )
-        )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
+        val binding = QuoteItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return QuoteViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return differ.currentList.size
-    }
+    override fun getItemCount() = differ.currentList.size
 
-    override fun onBindViewHolder(holder: QuotesViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
         val quote = differ.currentList[position]
         holder.itemView.apply {
-            quoteTextView.text = quote.content
-            authorTextView.text = quote.author
+            val t = "“${quote.content}”"
+            holder.binding.quoteTextView.text = t
+            holder.binding.authorTextView.text = quote.author
+            if (quote.liked) {
+                holder.binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
+            } else {
+                holder.binding.likeButton.setBackgroundResource(R.drawable.heart)
+            }
+            holder.binding.likeButton.setOnClickListener {
+                quoteClickListener.likeOrUnLike(quote)
+                if (quote.liked) {
+                    holder.binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
+                } else {
+                    holder.binding.likeButton.setBackgroundResource(R.drawable.heart)
+                }
+            }
         }
     }
 }

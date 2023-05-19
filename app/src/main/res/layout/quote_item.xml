@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/satoshi_regular"
             android:gravity="center"
-            android:textColor="@color/darkTextColor"
+            android:textColor="#0d2237"
             android:textSize="32sp"
             tools:text="“Enjoy your life.”" />
 
@@ -32,9 +32,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/satoshi_italic"
-            android:textColor="@color/darkTextColor"
+            android:textColor="#0d2237"
             android:textSize="24sp"
-            tools:text="Elnur Isaev" />
+            tools:text="-Elnur Isaev" />
     </LinearLayout>
 
     <ImageButton
