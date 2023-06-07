@@ -5,15 +5,18 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.quotes.models.QuoteDBModel
+import com.example.quotes.models.QuoteDBModel2
 
 
 @Database(
-    entities = [QuoteDBModel::class],
+    entities = [QuoteDBModel::class, QuoteDBModel2::class],
     version = 1
 )
 abstract class QuotesDatabase : RoomDatabase() {
 
     abstract fun getQuoteDao(): QuoteDAO
+
+    abstract fun getCachedQuoteDao(): CachedQuoteDao
 
     companion object {
         @Volatile

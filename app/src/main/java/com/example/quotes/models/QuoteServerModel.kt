@@ -11,4 +11,9 @@ data class QuoteServerModel(
         content = q,
         liked = liked
     )
+
+    fun toCachedQuoteModel(liked: Boolean = false) = QuoteDBModel2(
+        author = a,
+        content = q
+    )
 }

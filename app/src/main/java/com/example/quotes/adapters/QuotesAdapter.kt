@@ -5,16 +5,64 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.example.quotes.R
+import com.example.quotes.databinding.ErrorItemBinding
 import com.example.quotes.databinding.QuoteItemBinding
 import com.example.quotes.models.QuoteUiModel
 import com.example.quotes.ui.QuoteClickListener
+import com.example.quotes.ui.Updater
 
-class QuotesAdapter(private val quoteClickListener: QuoteClickListener) :
-    RecyclerView.Adapter<QuotesAdapter.QuoteViewHolder>() {
+class QuotesAdapter(
+    private val quoteClickListener: QuoteClickListener,
+    private val updater: Updater
+) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    inner class QuoteViewHolder(val binding: QuoteItemBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    private val VIEW_TYPE_QUOTE = 0
+    private val VIEW_TYPE_ERROR = 1
+
+    abstract class ItemViewHolder(binding: ViewBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        abstract fun bind(quote: QuoteUiModel)
+    }
+
+    inner class QuoteViewHolder(private val binding: QuoteItemBinding) :
+        ItemViewHolder(binding) {
+        override fun bind(quote: QuoteUiModel) {
+            val t = "“${quote.content}”"
+            binding.quoteTextView.text = t
+            binding.authorTextView.text = quote.author
+            if (quote.liked) {
+                binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
+            } else {
+                binding.likeButton.setBackgroundResource(R.drawable.heart)
+            }
+            binding.likeButton.setOnClickListener {
+                quoteClickListener.likeOrUnLike(quote)
+                if (quote.liked) {
+                    binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
+                } else {
+                    binding.likeButton.setBackgroundResource(R.drawable.heart)
+                }
+            }
+            binding.shareButton.setOnClickListener {
+                quoteClickListener.share(quote)
+            }
+        }
+    }
+
+    inner class ErrorViewHolder(private val binding: ErrorItemBinding) :
+        ItemViewHolder(binding) {
+        override fun bind(quote: QuoteUiModel) {
+            val t = "“${quote.content}”"
+            binding.errorTextView.text = t
+            binding.errorAuthorTextView.text = quote.author
+            binding.updateButton.setOnClickListener {
+                updater.update()
+            }
+        }
+    }
 
     private val diffCallback = object : DiffUtil.ItemCallback<QuoteUiModel>() {
         override fun areContentsTheSame(oldItem: QuoteUiModel, newItem: QuoteUiModel): Boolean =
@@ -26,32 +74,32 @@ class QuotesAdapter(private val quoteClickListener: QuoteClickListener) :
 
     val differ = AsyncListDiffer(this, diffCallback)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteViewHolder {
-        val binding = QuoteItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return QuoteViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        return if (viewType == VIEW_TYPE_QUOTE) {
+            val binding =
+                QuoteItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            QuoteViewHolder(binding)
+        } else {
+            val binding =
+                ErrorItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ErrorViewHolder(binding)
+        }
     }
 
     override fun getItemCount() = differ.currentList.size
 
-    override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
+    override fun getItemViewType(position: Int): Int {
         val quote = differ.currentList[position]
-        holder.itemView.apply {
-            val t = "“${quote.content}”"
-            holder.binding.quoteTextView.text = t
-            holder.binding.authorTextView.text = quote.author
-            if (quote.liked) {
-                holder.binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
-            } else {
-                holder.binding.likeButton.setBackgroundResource(R.drawable.heart)
-            }
-            holder.binding.likeButton.setOnClickListener {
-                quoteClickListener.likeOrUnLike(quote)
-                if (quote.liked) {
-                    holder.binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
-                } else {
-                    holder.binding.likeButton.setBackgroundResource(R.drawable.heart)
-                }
-            }
+        return if (quote.author == "App")
+            VIEW_TYPE_ERROR
+        else VIEW_TYPE_QUOTE
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val quote = differ.currentList[position]
+        when (holder) {
+            is QuoteViewHolder -> holder.bind(quote)
+            is ErrorViewHolder -> holder.bind(quote)
         }
     }
 }

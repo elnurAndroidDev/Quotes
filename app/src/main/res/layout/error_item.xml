@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/quoteTextView"
+            android:id="@+id/errorTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/satoshi_regular"
@@ -27,30 +27,21 @@
             tools:text="“Enjoy your life.”" />
 
         <TextView
-            android:id="@+id/authorTextView"
+            android:id="@+id/errorAuthorTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/satoshi_italic"
             android:textColor="#0d2237"
             android:textSize="24sp"
-            tools:text="-Elnur Isaev" />
+            tools:text="-Android" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/likeButton"
+    <ImageView
+        android:id="@+id/updateButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/heart"
-        app:layout_constraintBottom_toTopOf="@+id/shareButton"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <ImageButton
-        android:id="@+id/shareButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/share"
+        android:background="@drawable/update_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

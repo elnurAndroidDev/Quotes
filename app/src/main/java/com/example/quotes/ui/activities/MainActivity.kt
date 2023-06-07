@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val newsRepository = QuotesRepository(QuotesDatabase(this))
-        val viewModelProviderFactory = QuotesViewModelProviderFactory(newsRepository)
+        val viewModelProviderFactory = QuotesViewModelProviderFactory(application, newsRepository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory)[QuotesViewModel::class.java]
 
         binding.viewPager.adapter = ViewPagerAdapter(this)

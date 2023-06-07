@@ -3,6 +3,7 @@ package com.example.quotes.db
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.quotes.models.QuoteDBModel
+import com.example.quotes.models.QuoteDBModel2
 
 @Dao
 interface QuoteDAO {
