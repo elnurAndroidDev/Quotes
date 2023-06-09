@@ -1,42 +1,36 @@
-package com.example.quotes.ui.fragments
+package com.example.quotes.ui.activities.favorites
 
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.quotes.R
 import com.example.quotes.adapters.SavedQuotesAdapter
-import com.example.quotes.databinding.FragmentFavoritesBinding
+import com.example.quotes.databinding.ActivityFavoritesBinding
+import com.example.quotes.db.QuotesDatabase
 import com.example.quotes.models.QuoteUiModel
+import com.example.quotes.repository.QuotesRepository
 import com.example.quotes.ui.QuoteClickListener
-import com.example.quotes.ui.activities.MainActivity
 
-class FavoritesFragment : Fragment(R.layout.fragment_favorites) {
+class FavoritesActivity : AppCompatActivity() {
 
-    private var _binding: FragmentFavoritesBinding? = null
     private lateinit var adapter: SavedQuotesAdapter
-    private val binding get() = _binding!!
+    private lateinit var binding: ActivityFavoritesBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentFavoritesBinding.inflate(layoutInflater, container, false)
-        return binding.root
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityFavoritesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val viewModel = (activity as MainActivity).viewModel
+        val newsRepository = QuotesRepository(QuotesDatabase(this))
+        val viewModelProviderFactory = FavoritesViewModelFactory(newsRepository)
+        val viewModel =
+            ViewModelProvider(this, viewModelProviderFactory)[FavoritesViewModel::class.java]
 
         adapter = SavedQuotesAdapter(object : QuoteClickListener {
             override fun likeOrUnLike(quote: QuoteUiModel) {
-                val builder = AlertDialog.Builder(context)
+                val builder = AlertDialog.Builder(this@FavoritesActivity)
                 builder.setTitle("Delete")
                 builder.setMessage("Delete from your favorites?")
                 builder.setPositiveButton("Yes") { dialogInterface, _ ->
@@ -62,18 +56,13 @@ class FavoritesFragment : Fragment(R.layout.fragment_favorites) {
             }
         })
         binding.favRV.adapter = adapter
-        binding.favRV.layoutManager = LinearLayoutManager(activity)
+        binding.favRV.layoutManager = LinearLayoutManager(this)
 
-        viewModel.getSavedQuotes().observe(viewLifecycleOwner) {
+        viewModel.getSavedQuotes().observe(this) {
             adapter.differ.submitList(it.map { qdb ->
                 qdb.toUiModel()
             })
         }
-    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
-
 }

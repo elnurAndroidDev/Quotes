@@ -4,13 +4,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "cache_quotes"
+    tableName = "quotes"
 )
-data class QuoteDBModel2(
+data class FavoriteQuoteDBModel(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val author: String,
     val content: String
 ) {
-    fun toUiModel() = QuoteUiModel(author, content, false)
+    fun toUiModel() = QuoteUiModel(author, content, true)
 }

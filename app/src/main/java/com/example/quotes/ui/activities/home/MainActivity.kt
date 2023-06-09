@@ -1,46 +1,64 @@
-package com.example.quotes.ui.fragments
+package com.example.quotes.ui.activities.home
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.viewpager2.widget.ViewPager2
 import com.example.quotes.R
 import com.example.quotes.Resource
 import com.example.quotes.adapters.QuotesAdapter
-import com.example.quotes.databinding.FragmentHomeBinding
+import com.example.quotes.databinding.ActivityMainBinding
+import com.example.quotes.db.QuotesDatabase
 import com.example.quotes.models.QuoteUiModel
+import com.example.quotes.repository.QuotesRepository
 import com.example.quotes.ui.QuoteClickListener
 import com.example.quotes.ui.QuotesViewModel
+import com.example.quotes.ui.QuotesViewModelProviderFactory
 import com.example.quotes.ui.Updater
-import com.example.quotes.ui.activities.MainActivity
+import com.example.quotes.ui.activities.favorites.FavoritesActivity
+import com.example.quotes.ui.activities.settings.SettingsActivity
+import com.google.android.material.navigation.NavigationView
 
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    lateinit var viewModel: QuotesViewModel
+    private lateinit var binding: ActivityMainBinding
     private lateinit var quotesAdapter: QuotesAdapter
-    private lateinit var viewModel: QuotesViewModel
 
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHomeBinding.inflate(layoutInflater, container, false)
-        return binding.root
-    }
+        val newsRepository = QuotesRepository(QuotesDatabase(this))
+        val viewModelProviderFactory = QuotesViewModelProviderFactory(application, newsRepository)
+        viewModel = ViewModelProvider(this, viewModelProviderFactory)[QuotesViewModel::class.java]
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel = (activity as MainActivity).viewModel
+        setSupportActionBar(binding.toolbar)
+
+        val toggle = ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            binding.toolbar,
+            R.string.open_nav,
+            R.string.close_nav
+        )
+
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        binding.navView.setNavigationItemSelectedListener(this)
 
         setupViewPager()
 
-        viewModel.quotes.observe(viewLifecycleOwner) {
+        viewModel.quotes.observe(this) {
             when (it) {
                 is Resource.Success -> {
                     binding.progressCircle.visibility = View.GONE
@@ -63,6 +81,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 else -> {}
             }
         }
+
     }
 
     private fun setupViewPager() {
@@ -98,9 +117,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         quotesAdapter = QuotesAdapter(quoteClickListener, updater)
         binding.viewPager.adapter = quotesAdapter
 
-        binding.viewPager.registerOnPageChangeCallback(object : OnPageChangeCallback() {
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                Log.d("MyLog", "$position ${quotesAdapter.differ.currentList.size - 1}")
                 if (position == quotesAdapter.differ.currentList.size - 1) {
                     viewModel.getQuotesList()
                 }
@@ -109,8 +127,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_favorites -> startActivity(Intent(this, FavoritesActivity::class.java))
+            R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+        return false
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val sharedPref = this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE) ?: return
+        val defaultValue = 0
+        val textSize = sharedPref.getInt(getString(R.string.quote_size_key), defaultValue)
+        Log.d("MyLog", "$textSize  resume")
+        quotesAdapter.setTextSize(textSize)
     }
 }

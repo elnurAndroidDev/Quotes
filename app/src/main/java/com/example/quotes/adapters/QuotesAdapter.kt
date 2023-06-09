@@ -22,6 +22,8 @@ class QuotesAdapter(
     private val VIEW_TYPE_QUOTE = 0
     private val VIEW_TYPE_ERROR = 1
 
+    private var textSize = 32
+
     abstract class ItemViewHolder(binding: ViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
         abstract fun bind(quote: QuoteUiModel)
@@ -30,6 +32,8 @@ class QuotesAdapter(
     inner class QuoteViewHolder(private val binding: QuoteItemBinding) :
         ItemViewHolder(binding) {
         override fun bind(quote: QuoteUiModel) {
+            binding.quoteTextView.textSize = textSize.toFloat() + 24
+            binding.authorTextView.textSize = textSize.toFloat() + 16
             val t = "“${quote.content}”"
             binding.quoteTextView.text = t
             binding.authorTextView.text = quote.author
@@ -55,6 +59,8 @@ class QuotesAdapter(
     inner class ErrorViewHolder(private val binding: ErrorItemBinding) :
         ItemViewHolder(binding) {
         override fun bind(quote: QuoteUiModel) {
+            binding.errorTextView.textSize = textSize.toFloat() + 24
+            binding.errorAuthorTextView.textSize = textSize.toFloat() + 16
             val t = "“${quote.content}”"
             binding.errorTextView.text = t
             binding.errorAuthorTextView.text = quote.author
@@ -101,5 +107,10 @@ class QuotesAdapter(
             is QuoteViewHolder -> holder.bind(quote)
             is ErrorViewHolder -> holder.bind(quote)
         }
+    }
+
+    fun setTextSize(size: Int) {
+        textSize = size
+        notifyDataSetChanged()
     }
 }

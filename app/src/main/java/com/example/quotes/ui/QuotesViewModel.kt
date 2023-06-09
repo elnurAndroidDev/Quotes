@@ -6,20 +6,18 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities.TRANSPORT_CELLULAR
 import android.net.NetworkCapabilities.TRANSPORT_ETHERNET
 import android.net.NetworkCapabilities.TRANSPORT_WIFI
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.quotes.QuotesApplication
 import com.example.quotes.Resource
-import com.example.quotes.models.QuoteDBModel
+import com.example.quotes.models.FavoriteQuoteDBModel
 import com.example.quotes.models.QuoteServerModel
 import com.example.quotes.models.QuoteUiModel
 import com.example.quotes.models.QuotesResponse
 import com.example.quotes.repository.QuotesRepository
 import kotlinx.coroutines.launch
 import retrofit2.Response
-import java.io.IOException
 
 class QuotesViewModel(
     app: Application,
@@ -37,19 +35,18 @@ class QuotesViewModel(
     fun getQuotesList() = viewModelScope.launch {
         try {
             if (hasInternet()) {
+
                 if (quotesList.isEmpty())
                     quotes.postValue(Resource.Loading())
                 val response = repository.getQuotesList()
                 quotes.postValue(handleQuotesResponse(response))
+
             } else {
                 addErrorItemToList("No Internet connection")
                 quotes.postValue(Resource.Error(quotesList.toList()))
             }
         } catch (t: Throwable) {
-            when (t) {
-                is IOException -> addErrorItemToList("Network failure")
-                else -> addErrorItemToList("Conversion error")
-            }
+            addErrorItemToList(t.message.toString())
             quotes.postValue(Resource.Error(quotesList.toList()))
         }
     }
@@ -85,19 +82,27 @@ class QuotesViewModel(
         return Resource.Error(quotesList.toList())
     }
 
+    /*fun unlikeOnDelete(quoteContent: String) {
+        if (quotesList.isNotEmpty()) {
+            for (quote in quotesList) {
+                if (quote.content == quoteContent && quote.liked)
+                    quote.liked = false
+            }
+            quotes.postValue(Resource.Success(quotesList.toList()))
+        }
+    }
+
     fun cacheQuotes(quotes: List<QuoteServerModel>) = viewModelScope.launch {
         repository.cacheQuotes(quotes.map { it.toCachedQuoteModel() })
     }
 
     fun getQuotesFromCache() = viewModelScope.launch {
         repository.getCachedQuotes()
-    }
+    }*/
 
     fun saveQuote(quote: QuoteUiModel) = viewModelScope.launch {
-        repository.insertQuote(QuoteDBModel(author = quote.author, content = quote.content))
+        repository.insertQuote(FavoriteQuoteDBModel(author = quote.author, content = quote.content))
     }
-
-    fun getSavedQuotes() = repository.getSavedQuotes()
 
     fun deleteQuote(quote: QuoteUiModel) = viewModelScope.launch {
         repository.deleteQuote(quote.content)
