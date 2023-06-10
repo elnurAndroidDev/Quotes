@@ -1,5 +1,6 @@
 package com.example.quotes.adapters
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
@@ -23,6 +24,11 @@ class QuotesAdapter(
     private val VIEW_TYPE_ERROR = 1
 
     private var textSize = 32
+    private lateinit var font: Typeface
+
+    fun setFont(font: Typeface) {
+        this.font = font
+    }
 
     abstract class ItemViewHolder(binding: ViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -34,9 +40,12 @@ class QuotesAdapter(
         override fun bind(quote: QuoteUiModel) {
             binding.quoteTextView.textSize = textSize.toFloat() + 24
             binding.authorTextView.textSize = textSize.toFloat() + 16
-            val t = "“${quote.content}”"
-            binding.quoteTextView.text = t
-            binding.authorTextView.text = quote.author
+            binding.quoteTextView.typeface = font
+            binding.authorTextView.typeface = font
+            val content = "“${quote.content}”"
+            binding.quoteTextView.text = content
+            val author = "-${quote.author}"
+            binding.authorTextView.text = author
             if (quote.liked) {
                 binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
             } else {
@@ -61,9 +70,12 @@ class QuotesAdapter(
         override fun bind(quote: QuoteUiModel) {
             binding.errorTextView.textSize = textSize.toFloat() + 24
             binding.errorAuthorTextView.textSize = textSize.toFloat() + 16
-            val t = "“${quote.content}”"
-            binding.errorTextView.text = t
-            binding.errorAuthorTextView.text = quote.author
+            binding.errorTextView.typeface = font
+            binding.errorAuthorTextView.typeface = font
+            val content = "“${quote.content}”"
+            binding.errorTextView.text = content
+            val author = "-${quote.author}"
+            binding.errorAuthorTextView.text = author
             binding.updateButton.setOnClickListener {
                 updater.update()
             }

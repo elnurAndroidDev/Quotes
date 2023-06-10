@@ -11,4 +11,16 @@
 
     <color name="mainColor">#44C1B1</color>
     <color name="mainColorNight">#0d2237</color>
+
+    <color name="color1">#DFD5B1</color>
+    <color name="color2">#B1FA96</color>
+    <color name="color3">#BDAED3</color>
+    <color name="color4">#F8DFB6</color>
+    <color name="color5">#D893A9</color>
+    <color name="color6">#EAAAD6</color>
+    <color name="color7">#a2d4ac</color>
+    <color name="color8">#dbb7a6</color>
+    <color name="color9">#f5f990</color>
+    <color name="color10">#b5fbfb</color>
+    <color name="color11">#c5c5c5</color>
 </resources>

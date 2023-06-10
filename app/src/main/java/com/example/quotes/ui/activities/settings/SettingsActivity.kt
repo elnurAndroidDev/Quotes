@@ -2,52 +2,67 @@ package com.example.quotes.ui.activities.settings
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import com.example.quotes.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var quoteTextView: TextView
     private lateinit var authorTextView: TextView
+    private lateinit var quoteSizeTextView: TextView
+    private lateinit var quoteSizeSeekBar: SeekBar
+    private lateinit var fontSpinner: Spinner
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         quoteTextView = findViewById(R.id.demoQuote)
         authorTextView = findViewById(R.id.demoAuthor)
+        quoteSizeTextView = findViewById(R.id.quoteSizeTextView)
+        quoteSizeSeekBar = findViewById(R.id.quoteSizeSeekBar)
+        fontSpinner = findViewById(R.id.fontSpinner)
+        settingViewsFromSharedPreferences()
         showBottomSheetDialog()
+    }
+
+    private fun settingViewsFromSharedPreferences() {
+        val sharedPref =
+            this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE) ?: return
+        val textSize = sharedPref.getInt(getString(R.string.quote_size_key), 0)
+        quoteTextView.textSize = (textSize + 24).toFloat()
+        authorTextView.textSize = (textSize + 16).toFloat()
+        val t = (textSize + 24).toString()
+        quoteSizeTextView.text = t
+        quoteSizeSeekBar.progress = textSize
+
+        val fontPosition = sharedPref.getInt(getString(R.string.font_key), 0)
+        fontSpinner.setSelection(fontPosition)
     }
 
 
     private fun showBottomSheetDialog() {
-        val sharedPref = this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE) ?: return
-        val defaultValue = 0
-        val textSize = sharedPref.getInt(getString(R.string.quote_size_key), defaultValue)
-
-        quoteTextView.textSize = (textSize+24).toFloat()
-        authorTextView.textSize = (textSize+16).toFloat()
 
         val bottomSheetLayout = findViewById<LinearLayout>(R.id.bottom_sheet_layout)
         val sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout)
-        val headerTextView = findViewById<TextView>(R.id.bottom_sheet_header)
-        val quoteSizeTextView = findViewById<TextView>(R.id.quoteSizeTextView)
-        val t = (textSize+24).toString()
-        quoteSizeTextView.text = t
+        sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
+        val headerTextView = findViewById<TextView>(R.id.bottom_sheet_header)
         headerTextView.setOnClickListener {
             if (sheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED)
             } else {
-                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
             }
         }
 
-        val quoteSizeSeekBar = findViewById<SeekBar>(R.id.quoteSizeSeekBar)
-        quoteSizeSeekBar.progress = textSize
         quoteSizeSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, size: Int, p2: Boolean) {
                 quoteTextView.textSize = size.toFloat() + 24
@@ -60,12 +75,46 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             override fun onStopTrackingTouch(p0: SeekBar?) {
-                with (sharedPref.edit()) {
+                val sharedPref = this@SettingsActivity.getSharedPreferences(
+                    "AppearancePreferences",
+                    Context.MODE_PRIVATE
+                ) ?: return
+                with(sharedPref.edit()) {
                     putInt(getString(R.string.quote_size_key), p0?.progress ?: 0)
                     apply()
                 }
             }
 
         })
+
+        fontSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+                setFont(position)
+                val sharedPref = this@SettingsActivity.getSharedPreferences(
+                    "AppearancePreferences",
+                    Context.MODE_PRIVATE
+                ) ?: return
+                with(sharedPref.edit()) {
+                    putInt(getString(R.string.font_key), position)
+                    apply()
+                }
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+            }
+        }
+    }
+
+    private fun setFont(position: Int) {
+        val typeface = when (position) {
+            0 -> ResourcesCompat.getFont(this, R.font.satoshi)
+            1 -> ResourcesCompat.getFont(this, R.font.geosans_light)
+            2 -> ResourcesCompat.getFont(this, R.font.pobeda)
+            3 -> ResourcesCompat.getFont(this, R.font.president)
+            4 -> ResourcesCompat.getFont(this, R.font.comic)
+            else -> ResourcesCompat.getFont(this, R.font.satoshi)
+        }
+        quoteTextView.typeface = typeface
+        authorTextView.typeface = typeface
     }
 }

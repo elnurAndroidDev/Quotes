@@ -20,7 +20,7 @@
             android:id="@+id/errorTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/satoshi_regular"
+            android:fontFamily="@font/satoshi"
             android:gravity="center"
             android:textColor="#0d2237"
             android:textSize="32sp"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/satoshi_italic"
+            android:fontFamily="@font/satoshi"
             android:textColor="#0d2237"
             android:textSize="24sp"
             tools:text="-Android" />

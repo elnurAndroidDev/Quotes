@@ -20,4 +20,13 @@
     <string name="open_nav">Open Navigation Drawer</string>
     <string name="close_nav">Close Navigation Drawer</string>
     <string name="quote_size_key">quote_size_key</string>
+    <string name="font_key">font_key</string>
+
+    <string-array name="fonts">
+        <item>Satoshi</item>
+        <item>GeoSans</item>
+        <item>Pobeda</item>
+        <item>President</item>
+        <item>Comic</item>
+    </string-array>
 </resources>

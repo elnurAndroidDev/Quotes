@@ -28,21 +28,21 @@
             android:id="@+id/demoQuote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/satoshi_regular"
+            android:fontFamily="@font/satoshi"
             android:gravity="center"
             android:text="“Enjoy your life.”"
             android:textColor="#0d2237"
-            android:textSize="24sp" />
+            android:textSize="32sp" />
 
         <TextView
             android:id="@+id/demoAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/satoshi_italic"
+            android:fontFamily="@font/satoshi"
             android:text="-Elnur Isaev"
             android:textColor="#0d2237"
-            android:textSize="16sp" />
+            android:textSize="24sp" />
 
     </LinearLayout>
 

@@ -2,12 +2,17 @@ package com.example.quotes.ui.activities.home
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -31,6 +36,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var viewModel: QuotesViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var quotesAdapter: QuotesAdapter
+    private lateinit var bgColors: ArrayList<Int>
+    private var lastColorId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +89,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+        bgColors = ArrayList()
+        bgColors.apply {
+            add(ContextCompat.getColor(this@MainActivity, R.color.color1))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color2))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color3))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color4))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color5))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color6))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color7))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color8))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color9))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color10))
+            add(ContextCompat.getColor(this@MainActivity, R.color.color11))
+        }
+
+        lastColorId = (0..10).random()
+        binding.viewPager.setBackgroundColor(bgColors[lastColorId])
     }
 
     private fun setupViewPager() {
@@ -122,6 +146,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (position == quotesAdapter.differ.currentList.size - 1) {
                     viewModel.getQuotesList()
                 }
+                Log.d("MyLog", "pageChanged")
+                changeBackgroundColor()
                 super.onPageSelected(position)
             }
         })
@@ -138,10 +164,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
-        val sharedPref = this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE) ?: return
+        val sharedPref =
+            this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE) ?: return
         val defaultValue = 0
         val textSize = sharedPref.getInt(getString(R.string.quote_size_key), defaultValue)
-        Log.d("MyLog", "$textSize  resume")
         quotesAdapter.setTextSize(textSize)
+        val fontPosition = sharedPref.getInt(getString(R.string.font_key), 0)
+        quotesAdapter.setFont(getFontByPosition(fontPosition))
+
+    }
+
+    private fun getFontByPosition(pos: Int): Typeface {
+        return when (pos) {
+            0 -> ResourcesCompat.getFont(this, R.font.satoshi)!!
+            1 -> ResourcesCompat.getFont(this, R.font.geosans_light)!!
+            2 -> ResourcesCompat.getFont(this, R.font.pobeda)!!
+            3 -> ResourcesCompat.getFont(this, R.font.president)!!
+            4 -> ResourcesCompat.getFont(this, R.font.comic)!!
+            else -> ResourcesCompat.getFont(this, R.font.satoshi)!!
+        }
+    }
+
+    private fun changeBackgroundColor() {
+        var randomColorId = (0..10).random()
+        while (lastColorId == randomColorId) {
+            randomColorId = (0..10).random()
+        }
+        val tColors =
+            arrayOf(ColorDrawable(bgColors[lastColorId]), ColorDrawable(bgColors[randomColorId]))
+        val transition = TransitionDrawable(tColors)
+        binding.viewPager.background = transition
+        transition.startTransition(500)
+        lastColorId = randomColorId
     }
 }

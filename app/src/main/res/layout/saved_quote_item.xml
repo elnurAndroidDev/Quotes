@@ -20,7 +20,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:fontFamily="@font/satoshi_regular"
+            android:fontFamily="@font/satoshi"
             android:gravity="start"
             android:textColor="#0d2237"
             android:textSize="24sp"
@@ -35,14 +35,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
-            android:fontFamily="@font/satoshi_italic"
+            android:fontFamily="@font/satoshi"
             android:gravity="center"
             android:textColor="#163553"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@id/sqTextView"
             app:layout_constraintTop_toBottomOf="@id/sqTextView"
-            tools:text="— Elnur Isaev" />
+            tools:text="-Elnur Isaev" />
 
         <ImageButton
             android:id="@+id/sqShareButton"
