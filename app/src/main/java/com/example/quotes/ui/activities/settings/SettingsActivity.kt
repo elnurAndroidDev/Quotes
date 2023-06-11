@@ -1,19 +1,23 @@
 package com.example.quotes.ui.activities.settings
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import com.example.quotes.R
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import top.defaults.colorpicker.ColorPickerView
 
 class SettingsActivity : AppCompatActivity() {
     private lateinit var quoteTextView: TextView
@@ -21,6 +25,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var quoteSizeTextView: TextView
     private lateinit var quoteSizeSeekBar: SeekBar
     private lateinit var fontSpinner: Spinner
+    private lateinit var colorIndicator: ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -29,6 +35,7 @@ class SettingsActivity : AppCompatActivity() {
         quoteSizeTextView = findViewById(R.id.quoteSizeTextView)
         quoteSizeSeekBar = findViewById(R.id.quoteSizeSeekBar)
         fontSpinner = findViewById(R.id.fontSpinner)
+        colorIndicator = findViewById(R.id.quoteColorIndicator)
         settingViewsFromSharedPreferences()
         showBottomSheetDialog()
     }
@@ -45,6 +52,11 @@ class SettingsActivity : AppCompatActivity() {
 
         val fontPosition = sharedPref.getInt(getString(R.string.font_key), 0)
         fontSpinner.setSelection(fontPosition)
+
+        val color = sharedPref.getInt(getString(R.string.quote_color_key), Color.BLACK)
+        colorIndicator.setBackgroundColor(color)
+        quoteTextView.setTextColor(color)
+        authorTextView.setTextColor(color)
     }
 
 
@@ -67,7 +79,7 @@ class SettingsActivity : AppCompatActivity() {
             override fun onProgressChanged(p0: SeekBar?, size: Int, p2: Boolean) {
                 quoteTextView.textSize = size.toFloat() + 24
                 authorTextView.textSize = size.toFloat() + 16
-                val text = (size+24).toString()
+                val text = (size + 24).toString()
                 quoteSizeTextView.text = text
             }
 
@@ -102,6 +114,30 @@ class SettingsActivity : AppCompatActivity() {
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
+        }
+
+        colorIndicator.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Choose text color")
+            val dialogLayout = layoutInflater.inflate(R.layout.color_picker_layout, null)
+            val colorPicker = dialogLayout.findViewById<ColorPickerView>(R.id.color_picker)
+            builder.setView(dialogLayout)
+            builder.setPositiveButton("OK") { dialogInterface, _ ->
+                quoteTextView.setTextColor(colorPicker.color)
+                authorTextView.setTextColor(colorPicker.color)
+                colorIndicator.setBackgroundColor(colorPicker.color)
+                val sharedPref = this@SettingsActivity.getSharedPreferences(
+                    "AppearancePreferences",
+                    Context.MODE_PRIVATE
+                )
+                with(sharedPref.edit()) {
+                    putInt(getString(R.string.quote_color_key), colorPicker.color)
+                    apply()
+                }
+                dialogInterface.dismiss()
+            }
+            builder.setNegativeButton("Cancel") { dialogInterface, _ -> dialogInterface.dismiss() }
+            builder.show()
         }
     }
 

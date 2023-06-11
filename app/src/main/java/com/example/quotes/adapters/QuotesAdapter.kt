@@ -1,5 +1,6 @@
 package com.example.quotes.adapters
 
+import android.graphics.Color
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -24,10 +25,14 @@ class QuotesAdapter(
     private val VIEW_TYPE_ERROR = 1
 
     private var textSize = 32
-    private lateinit var font: Typeface
+    private var font: Typeface? = null
+    private var textColor = Color.BLACK
 
-    fun setFont(font: Typeface) {
+    fun setPreferences(font: Typeface, textSize: Int, textColor: Int) {
         this.font = font
+        this.textSize = textSize
+        this.textColor = textColor
+        notifyDataSetChanged()
     }
 
     abstract class ItemViewHolder(binding: ViewBinding) :
@@ -42,6 +47,8 @@ class QuotesAdapter(
             binding.authorTextView.textSize = textSize.toFloat() + 16
             binding.quoteTextView.typeface = font
             binding.authorTextView.typeface = font
+            binding.quoteTextView.setTextColor(textColor)
+            binding.authorTextView.setTextColor(textColor)
             val content = "“${quote.content}”"
             binding.quoteTextView.text = content
             val author = "-${quote.author}"
@@ -72,6 +79,8 @@ class QuotesAdapter(
             binding.errorAuthorTextView.textSize = textSize.toFloat() + 16
             binding.errorTextView.typeface = font
             binding.errorAuthorTextView.typeface = font
+            binding.errorTextView.setTextColor(textColor)
+            binding.errorAuthorTextView.setTextColor(textColor)
             val content = "“${quote.content}”"
             binding.errorTextView.text = content
             val author = "-${quote.author}"
@@ -119,10 +128,5 @@ class QuotesAdapter(
             is QuoteViewHolder -> holder.bind(quote)
             is ErrorViewHolder -> holder.bind(quote)
         }
-    }
-
-    fun setTextSize(size: Int) {
-        textSize = size
-        notifyDataSetChanged()
     }
 }

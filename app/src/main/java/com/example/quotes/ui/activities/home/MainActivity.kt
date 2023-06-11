@@ -2,10 +2,14 @@ package com.example.quotes.ui.activities.home
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -30,6 +34,7 @@ import com.example.quotes.ui.Updater
 import com.example.quotes.ui.activities.favorites.FavoritesActivity
 import com.example.quotes.ui.activities.settings.SettingsActivity
 import com.google.android.material.navigation.NavigationView
+import java.io.ByteArrayOutputStream
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -117,6 +122,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     viewModel.deleteQuote(quote)
                 }
                 quote.liked = !quote.liked
+                val screenShot = takeScreenshotOfView(binding.mainContainer)
+                val bytes = ByteArrayOutputStream()
+                screenShot.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+                val path =
+                    MediaStore.Images.Media.insertImage(contentResolver, screenShot, "File", null)
             }
 
             override fun share(quote: QuoteUiModel) {
@@ -164,13 +174,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
+        settingViewsFromSharedPreferences()
+    }
+
+    private fun settingViewsFromSharedPreferences() {
         val sharedPref =
-            this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE) ?: return
+            this.getSharedPreferences("AppearancePreferences", Context.MODE_PRIVATE)
         val defaultValue = 0
         val textSize = sharedPref.getInt(getString(R.string.quote_size_key), defaultValue)
-        quotesAdapter.setTextSize(textSize)
         val fontPosition = sharedPref.getInt(getString(R.string.font_key), 0)
-        quotesAdapter.setFont(getFontByPosition(fontPosition))
+        val color = sharedPref.getInt(getString(R.string.quote_color_key), Color.BLACK)
+        quotesAdapter.setPreferences(
+            font = getFontByPosition(fontPosition),
+            textSize = textSize,
+            textColor = color
+        )
 
     }
 
@@ -196,5 +214,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.viewPager.background = transition
         transition.startTransition(500)
         lastColorId = randomColorId
+    }
+
+    private fun takeScreenshotOfView(view: View): Bitmap {
+        val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val bgDrawable = view.background
+        if (bgDrawable != null) {
+            bgDrawable.draw(canvas)
+        } else {
+            canvas.drawColor(Color.WHITE)
+        }
+        view.draw(canvas)
+        return bitmap
     }
 }

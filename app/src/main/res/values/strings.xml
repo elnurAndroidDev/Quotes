@@ -21,6 +21,7 @@
     <string name="close_nav">Close Navigation Drawer</string>
     <string name="quote_size_key">quote_size_key</string>
     <string name="font_key">font_key</string>
+    <string name="quote_color_key">quote_color_key</string>
 
     <string-array name="fonts">
         <item>Satoshi</item>
