@@ -1,8 +1,10 @@
 package com.example.quotes.adapters
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -27,11 +29,25 @@ class QuotesAdapter(
     private var textSize = 32
     private var font: Typeface? = null
     private var textColor = Color.BLACK
+    private var linkVisibility = View.GONE
+    private var buttonVisibility = View.VISIBLE
 
     fun setPreferences(font: Typeface, textSize: Int, textColor: Int) {
         this.font = font
         this.textSize = textSize
         this.textColor = textColor
+        notifyDataSetChanged()
+    }
+
+    fun prepareItemForScreenshot() {
+        linkVisibility = View.VISIBLE
+        buttonVisibility = View.GONE
+        notifyDataSetChanged()
+    }
+
+    fun backItemToDefault() {
+        linkVisibility = View.GONE
+        buttonVisibility = View.VISIBLE
         notifyDataSetChanged()
     }
 
@@ -49,6 +65,16 @@ class QuotesAdapter(
             binding.authorTextView.typeface = font
             binding.quoteTextView.setTextColor(textColor)
             binding.authorTextView.setTextColor(textColor)
+            binding.likeButton.backgroundTintList = ColorStateList.valueOf(textColor)
+            binding.shareButton.backgroundTintList = ColorStateList.valueOf(textColor)
+
+            binding.linkIcon.visibility = linkVisibility
+            binding.linkTextView.visibility = linkVisibility
+            binding.shareButton.visibility = buttonVisibility
+            binding.likeButton.visibility = buttonVisibility
+            binding.linkIcon.imageTintList = ColorStateList.valueOf(textColor)
+            binding.linkTextView.setTextColor(textColor)
+
             val content = "“${quote.content}”"
             binding.quoteTextView.text = content
             val author = "-${quote.author}"
@@ -75,12 +101,15 @@ class QuotesAdapter(
     inner class ErrorViewHolder(private val binding: ErrorItemBinding) :
         ItemViewHolder(binding) {
         override fun bind(quote: QuoteUiModel) {
-            binding.errorTextView.textSize = textSize.toFloat() + 24
-            binding.errorAuthorTextView.textSize = textSize.toFloat() + 16
-            binding.errorTextView.typeface = font
-            binding.errorAuthorTextView.typeface = font
-            binding.errorTextView.setTextColor(textColor)
-            binding.errorAuthorTextView.setTextColor(textColor)
+            binding.apply {
+                errorTextView.textSize = textSize.toFloat() + 24
+                errorAuthorTextView.textSize = textSize.toFloat() + 16
+                errorTextView.typeface = font
+                errorAuthorTextView.typeface = font
+                errorTextView.setTextColor(textColor)
+                errorAuthorTextView.setTextColor(textColor)
+                updateButton.backgroundTintList = ColorStateList.valueOf(textColor)
+            }
             val content = "“${quote.content}”"
             binding.errorTextView.text = content
             val author = "-${quote.author}"

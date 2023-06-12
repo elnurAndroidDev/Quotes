@@ -1,5 +1,7 @@
 package com.example.quotes.ui.activities.home
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -8,11 +10,13 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -33,8 +37,10 @@ import com.example.quotes.ui.QuotesViewModelProviderFactory
 import com.example.quotes.ui.Updater
 import com.example.quotes.ui.activities.favorites.FavoritesActivity
 import com.example.quotes.ui.activities.settings.SettingsActivity
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
 import java.io.ByteArrayOutputStream
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -42,6 +48,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var binding: ActivityMainBinding
     private lateinit var quotesAdapter: QuotesAdapter
     private lateinit var bgColors: ArrayList<Int>
+    private lateinit var sendBottomSheetDialog: BottomSheetDialog
+    private var dynamicBackground = false
+    private var quoteToSend: QuoteUiModel? = null
     private var lastColorId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +63,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel = ViewModelProvider(this, viewModelProviderFactory)[QuotesViewModel::class.java]
 
         setSupportActionBar(binding.toolbar)
-
         val toggle = ActionBarDrawerToggle(
             this,
             binding.drawerLayout,
@@ -62,13 +70,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.string.open_nav,
             R.string.close_nav
         )
-
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-
         binding.navView.setNavigationItemSelectedListener(this)
 
         setupViewPager()
+        setupSendDialog()
 
         viewModel.quotes.observe(this) {
             when (it) {
@@ -108,9 +115,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             add(ContextCompat.getColor(this@MainActivity, R.color.color10))
             add(ContextCompat.getColor(this@MainActivity, R.color.color11))
         }
-
         lastColorId = (0..10).random()
-        binding.viewPager.setBackgroundColor(bgColors[lastColorId])
     }
 
     private fun setupViewPager() {
@@ -122,23 +127,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     viewModel.deleteQuote(quote)
                 }
                 quote.liked = !quote.liked
-                val screenShot = takeScreenshotOfView(binding.mainContainer)
-                val bytes = ByteArrayOutputStream()
-                screenShot.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-                val path =
-                    MediaStore.Images.Media.insertImage(contentResolver, screenShot, "File", null)
             }
 
             override fun share(quote: QuoteUiModel) {
-                val text = "“${quote.content}”\n-${quote.author}"
-                val link = "Developer contact:\nhttps://t.me/elnurIsaevBlog"
-                val sendIntent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, "$text\n\n$link")
-                    type = "text/plain"
-                }
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                startActivity(shareIntent)
+                quoteToSend = quote
+                quotesAdapter.prepareItemForScreenshot()
+                sendBottomSheetDialog.show()
             }
         }
 
@@ -156,8 +150,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (position == quotesAdapter.differ.currentList.size - 1) {
                     viewModel.getQuotesList()
                 }
-                Log.d("MyLog", "pageChanged")
-                changeBackgroundColor()
+                if (dynamicBackground) {
+                    changeBackgroundColor()
+                }
                 super.onPageSelected(position)
             }
         })
@@ -189,7 +184,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             textSize = textSize,
             textColor = color
         )
-
+        val fonId = sharedPref.getInt(getString(R.string.background_key), R.drawable.gradient)
+        if (fonId == R.drawable.gradient) {
+            dynamicBackground = true
+            changeBackgroundColor()
+        } else {
+            dynamicBackground = false
+            binding.viewPager.setBackgroundResource(fonId)
+        }
     }
 
     private fun getFontByPosition(pos: Int): Typeface {
@@ -227,5 +229,57 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         view.draw(canvas)
         return bitmap
+    }
+
+    private fun setupSendDialog() {
+        sendBottomSheetDialog = BottomSheetDialog(this)
+        sendBottomSheetDialog.setContentView(R.layout.send_bottom_sheet)
+        val instaStories = sendBottomSheetDialog.findViewById<ImageView>(R.id.instagramStory)
+        val saveImage = sendBottomSheetDialog.findViewById<ImageView>(R.id.saveImage)
+        val copyText = sendBottomSheetDialog.findViewById<ImageView>(R.id.copyText)
+        val sendText = sendBottomSheetDialog.findViewById<ImageView>(R.id.sendText)
+
+        copyText?.setOnClickListener {
+            val textToCopy = prepareTextToSendCopy()
+            val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("text", textToCopy)
+            clipboardManager.setPrimaryClip(clipData)
+            Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_LONG).show()
+            sendBottomSheetDialog.cancel()
+        }
+
+        sendText?.setOnClickListener {
+            sendBottomSheetDialog.cancel()
+            val textToSend = prepareTextToSendCopy()
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, textToSend)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
+        }
+
+        saveImage?.setOnClickListener {
+            val screenshotBitmap = takeScreenshotOfView(binding.viewPager)
+            saveBitmap(screenshotBitmap)
+            sendBottomSheetDialog.cancel()
+        }
+
+        sendBottomSheetDialog.setOnCancelListener {
+            quotesAdapter.backItemToDefault()
+        }
+    }
+
+    private fun saveBitmap(bitmap: Bitmap) {
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ByteArrayOutputStream())
+        val path =
+            MediaStore.Images.Media.insertImage(contentResolver, bitmap, "File", null)
+    }
+
+    private fun prepareTextToSendCopy(): String {
+        val text = "“${quoteToSend?.content}”\n-${quoteToSend?.author}"
+        val link = "Developer contact:\nhttps://t.me/elnurIsaevBlog"
+        return "$text\n\n$link"
     }
 }

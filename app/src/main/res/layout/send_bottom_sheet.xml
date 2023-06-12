@@ -1,8 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/instagramStory"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/insta_icon"
+        android:padding="2dp"
+        app:layout_constraintEnd_toStartOf="@+id/saveImage"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="Instagram Stories"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/instagramStory"
+        app:layout_constraintStart_toStartOf="@+id/instagramStory"
+        app:layout_constraintTop_toBottomOf="@+id/instagramStory" />
+
+    <ImageView
+        android:id="@+id/saveImage"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:padding="6dp"
+        android:src="@drawable/save_image_icon"
+        app:layout_constraintEnd_toStartOf="@+id/copyText"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/instagramStory"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="Save Image"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/saveImage"
+        app:layout_constraintStart_toStartOf="@+id/saveImage"
+        app:layout_constraintTop_toBottomOf="@+id/saveImage" />
+
+    <ImageView
+        android:id="@+id/copyText"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/copy_text_icon"
+        android:padding="6dp"
+        app:layout_constraintEnd_toStartOf="@+id/sendText"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/saveImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="Copy Text"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/copyText"
+        app:layout_constraintStart_toStartOf="@+id/copyText"
+        app:layout_constraintTop_toBottomOf="@+id/copyText" />
+
+    <ImageView
+        android:id="@+id/sendText"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/send_text_icon"
+        android:padding="6dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/copyText"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:text="Send Text"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="@+id/sendText"
+        app:layout_constraintStart_toStartOf="@+id/sendText"
+        app:layout_constraintTop_toBottomOf="@+id/sendText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
