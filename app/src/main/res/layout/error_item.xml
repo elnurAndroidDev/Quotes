@@ -41,7 +41,7 @@
         android:id="@+id/updateButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@drawable/update_icon"
+        android:src="@drawable/update_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

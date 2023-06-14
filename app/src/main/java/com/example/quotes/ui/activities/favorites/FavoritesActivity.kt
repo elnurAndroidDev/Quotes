@@ -54,6 +54,10 @@ class FavoritesActivity : AppCompatActivity() {
                 val shareIntent = Intent.createChooser(sendIntent, null)
                 startActivity(shareIntent)
             }
+
+            override fun translate(quoteContent: String) {
+
+            }
         })
         binding.favRV.adapter = adapter
         binding.favRV.layoutManager = LinearLayoutManager(this)

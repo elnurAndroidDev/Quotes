@@ -2,6 +2,7 @@ package com.example.quotes.ui.activities.home
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,15 +12,19 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.TransitionDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
@@ -39,7 +44,9 @@ import com.example.quotes.ui.activities.favorites.FavoritesActivity
 import com.example.quotes.ui.activities.settings.SettingsActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
-import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -49,6 +56,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var quotesAdapter: QuotesAdapter
     private lateinit var bgColors: ArrayList<Int>
     private lateinit var sendBottomSheetDialog: BottomSheetDialog
+    private lateinit var translationDialog: BottomSheetDialog
+    private var translatedTextView: TextView? = null
     private var dynamicBackground = false
     private var quoteToSend: QuoteUiModel? = null
     private var lastColorId = -1
@@ -76,6 +85,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setupViewPager()
         setupSendDialog()
+        setupTranslationDialog()
 
         viewModel.quotes.observe(this) {
             when (it) {
@@ -98,6 +108,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 else -> {}
+            }
+        }
+
+        viewModel.translation.observe(this) {
+            when (it) {
+                is Resource.Success, is Resource.Error -> {
+                    it.data?.let { translatedTextView?.text = it }
+                }
+                is Resource.Loading -> {
+                    translationDialog.show()
+                    translatedTextView?.text = "Переводится..."
+                }
             }
         }
 
@@ -133,6 +155,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 quoteToSend = quote
                 quotesAdapter.prepareItemForScreenshot()
                 sendBottomSheetDialog.show()
+            }
+
+            override fun translate(quoteContent: String) {
+                viewModel.translate(quoteContent)
             }
         }
 
@@ -231,6 +257,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return bitmap
     }
 
+    private fun setupTranslationDialog() {
+        translationDialog = BottomSheetDialog(this)
+        translationDialog.setContentView(R.layout.translation_bottom_sheet)
+        translatedTextView = translationDialog.findViewById(R.id.translatedTextView)
+    }
+
     private fun setupSendDialog() {
         sendBottomSheetDialog = BottomSheetDialog(this)
         sendBottomSheetDialog.setContentView(R.layout.send_bottom_sheet)
@@ -238,6 +270,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val saveImage = sendBottomSheetDialog.findViewById<ImageView>(R.id.saveImage)
         val copyText = sendBottomSheetDialog.findViewById<ImageView>(R.id.copyText)
         val sendText = sendBottomSheetDialog.findViewById<ImageView>(R.id.sendText)
+
+        sendBottomSheetDialog.setOnCancelListener {
+            quotesAdapter.backItemToDefault()
+        }
 
         copyText?.setOnClickListener {
             val textToCopy = prepareTextToSendCopy()
@@ -262,19 +298,83 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         saveImage?.setOnClickListener {
             val screenshotBitmap = takeScreenshotOfView(binding.viewPager)
-            saveBitmap(screenshotBitmap)
+            saveImageToGallery(screenshotBitmap)
             sendBottomSheetDialog.cancel()
         }
 
-        sendBottomSheetDialog.setOnCancelListener {
-            quotesAdapter.backItemToDefault()
+        instaStories?.setOnClickListener {
+            sendBottomSheetDialog.cancel()
+            val screenshot = takeScreenshotOfView(binding.viewPager)
+            val uri = saveImageToCacheAndGetUri(screenshot)
+            val storiesIntent = Intent("com.instagram.share.ADD_TO_STORY")
+            storiesIntent.setDataAndType(uri, "image/*")
+            storiesIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            storiesIntent.setPackage("com.instagram.android")
+
+            this.grantUriPermission(
+                "com.instagram.android", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+
+            startActivity(storiesIntent)
         }
     }
 
-    private fun saveBitmap(bitmap: Bitmap) {
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ByteArrayOutputStream())
-        val path =
-            MediaStore.Images.Media.insertImage(contentResolver, bitmap, "File", null)
+    private fun saveImageToGallery(bitmap: Bitmap) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) saveImageInQ(bitmap)
+        else saveImageInLegacy(bitmap)
+    }
+
+    private fun saveImageInQ(bitmap: Bitmap) {
+        val filename = "IMG_${System.currentTimeMillis()}.jpg"
+        var fos: OutputStream?
+        var imageUri: Uri?
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+            put(MediaStore.Video.Media.IS_PENDING, 1)
+        }
+        val contentResolver = application.contentResolver
+
+        contentResolver.also { resolver ->
+            imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            fos = imageUri?.let { resolver.openOutputStream(it) }
+        }
+
+        fos?.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 70, it) }
+
+        contentValues.clear()
+        contentValues.put(MediaStore.Video.Media.IS_PENDING, 0)
+        contentResolver.update(imageUri!!, contentValues, null, null)
+    }
+
+    private fun saveImageInLegacy(bitmap: Bitmap) {
+        val imagesDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        val image = File(imagesDir, "IMG_${System.currentTimeMillis()}.jpg")
+        val fos = FileOutputStream(image)
+        fos.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) }
+    }
+
+    private fun saveImageToCacheAndGetUri(bitmap: Bitmap): Uri? {
+        val imagesFolder = File(this.cacheDir, "images")
+        var uri: Uri? = null
+        try {
+            imagesFolder.mkdirs()
+            val file = File(imagesFolder, "screenshot.jpg")
+            val stream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
+            stream.close()
+            uri = FileProvider.getUriForFile(
+                this.applicationContext,
+                "com.example.quotes" + ".provider",
+                file
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return uri
     }
 
     private fun prepareTextToSendCopy(): String {

@@ -65,8 +65,9 @@ class QuotesAdapter(
             binding.authorTextView.typeface = font
             binding.quoteTextView.setTextColor(textColor)
             binding.authorTextView.setTextColor(textColor)
-            binding.likeButton.backgroundTintList = ColorStateList.valueOf(textColor)
-            binding.shareButton.backgroundTintList = ColorStateList.valueOf(textColor)
+            binding.likeButton.imageTintList = ColorStateList.valueOf(textColor)
+            binding.shareButton.imageTintList = ColorStateList.valueOf(textColor)
+            binding.translateButton.imageTintList = ColorStateList.valueOf(textColor)
 
             binding.linkIcon.visibility = linkVisibility
             binding.linkTextView.visibility = linkVisibility
@@ -80,20 +81,23 @@ class QuotesAdapter(
             val author = "-${quote.author}"
             binding.authorTextView.text = author
             if (quote.liked) {
-                binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
+                binding.likeButton.setImageResource(R.drawable.heart_filled)
             } else {
-                binding.likeButton.setBackgroundResource(R.drawable.heart)
+                binding.likeButton.setImageResource(R.drawable.heart)
             }
             binding.likeButton.setOnClickListener {
                 quoteClickListener.likeOrUnLike(quote)
                 if (quote.liked) {
-                    binding.likeButton.setBackgroundResource(R.drawable.heart_filled)
+                    binding.likeButton.setImageResource(R.drawable.heart_filled)
                 } else {
-                    binding.likeButton.setBackgroundResource(R.drawable.heart)
+                    binding.likeButton.setImageResource(R.drawable.heart)
                 }
             }
             binding.shareButton.setOnClickListener {
                 quoteClickListener.share(quote)
+            }
+            binding.translateButton.setOnClickListener {
+                quoteClickListener.translate(quote.content)
             }
         }
     }
@@ -108,7 +112,7 @@ class QuotesAdapter(
                 errorAuthorTextView.typeface = font
                 errorTextView.setTextColor(textColor)
                 errorAuthorTextView.setTextColor(textColor)
-                updateButton.backgroundTintList = ColorStateList.valueOf(textColor)
+                updateButton.imageTintList = ColorStateList.valueOf(textColor)
             }
             val content = "“${quote.content}”"
             binding.errorTextView.text = content

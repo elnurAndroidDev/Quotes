@@ -12,12 +12,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.quotes.QuotesApplication
 import com.example.quotes.Resource
 import com.example.quotes.models.FavoriteQuoteDBModel
-import com.example.quotes.models.QuoteServerModel
 import com.example.quotes.models.QuoteUiModel
 import com.example.quotes.models.QuotesResponse
+import com.example.quotes.models.TranslationResponse
 import com.example.quotes.repository.QuotesRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import retrofit2.Response
+import java.net.URL
+import kotlin.concurrent.thread
 
 class QuotesViewModel(
     app: Application,
@@ -25,6 +28,8 @@ class QuotesViewModel(
 ) : AndroidViewModel(app) {
 
     val quotes: MutableLiveData<Resource<List<QuoteUiModel>>> = MutableLiveData()
+
+    val translation: MutableLiveData<Resource<String>> = MutableLiveData()
 
     private val quotesList = ArrayList<QuoteUiModel>()
 
@@ -106,6 +111,24 @@ class QuotesViewModel(
 
     fun deleteQuote(quote: QuoteUiModel) = viewModelScope.launch {
         repository.deleteQuote(quote.content)
+    }
+
+    fun translate(quote: String) {
+        thread {
+            translation.postValue(Resource.Loading())
+            try {
+                val baseUrl =
+                    "https://script.google.com/macros/s/AKfycbzpxbLLAL9KmKMUiPD6-xiN0Mhbh-XnEUJql953L98vH8e-1TxT6QGgaJ6Kc4F5wJNzbg/exec"
+                val params = "?text=$quote"
+                val url = "$baseUrl$params"
+                val responseString = URL(url).readText()
+                val translationResponse =
+                    Gson().fromJson(responseString, TranslationResponse::class.java)
+                translation.postValue(Resource.Success(translationResponse.message))
+            } catch (e: Exception) {
+                translation.postValue(Resource.Error(e.message.toString()))
+            }
+        }
     }
 
     private fun hasInternet(): Boolean {
