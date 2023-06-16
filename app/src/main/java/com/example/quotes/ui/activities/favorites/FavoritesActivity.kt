@@ -3,6 +3,8 @@ package com.example.quotes.ui.activities.favorites
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +29,9 @@ class FavoritesActivity : AppCompatActivity() {
         val viewModelProviderFactory = FavoritesViewModelFactory(newsRepository)
         val viewModel =
             ViewModelProvider(this, viewModelProviderFactory)[FavoritesViewModel::class.java]
+
+        setSupportActionBar(binding.favoritesToolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         adapter = SavedQuotesAdapter(object : QuoteClickListener {
             override fun likeOrUnLike(quote: QuoteUiModel) {
@@ -63,10 +68,22 @@ class FavoritesActivity : AppCompatActivity() {
         binding.favRV.layoutManager = LinearLayoutManager(this)
 
         viewModel.getSavedQuotes().observe(this) {
+            if (it.isEmpty()) {
+                binding.favRV.visibility = View.GONE
+                binding.emptyListTextView.visibility = View.VISIBLE
+            } else {
+                binding.favRV.visibility = View.VISIBLE
+                binding.emptyListTextView.visibility = View.GONE
+            }
             adapter.differ.submitList(it.map { qdb ->
                 qdb.toUiModel()
             })
         }
 
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 }

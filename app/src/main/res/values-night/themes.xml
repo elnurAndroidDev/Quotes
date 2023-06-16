@@ -1,16 +1,17 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.Quotes" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/mainColorNight</item>
+        <item name="colorPrimary">@color/mainColor</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <item name="colorOnPrimary">@color/mainColor</item>
+
+        <item name="android:statusBarColor">@color/mainColor</item>
+
+        <item name="android:fontFamily">@font/nunito</item>
+        <item name="android:textColor">@color/white</item>
+
+        <item name="mainColor">@color/mainColor</item>
+        <item name="accentColor">@color/white</item>
     </style>
 </resources>

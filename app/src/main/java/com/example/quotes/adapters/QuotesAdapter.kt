@@ -73,6 +73,7 @@ class QuotesAdapter(
             binding.linkTextView.visibility = linkVisibility
             binding.shareButton.visibility = buttonVisibility
             binding.likeButton.visibility = buttonVisibility
+            binding.translateButton.visibility = buttonVisibility
             binding.linkIcon.imageTintList = ColorStateList.valueOf(textColor)
             binding.linkTextView.setTextColor(textColor)
 

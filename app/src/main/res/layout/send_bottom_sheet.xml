@@ -9,8 +9,8 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/insta_icon"
-        android:padding="2dp"
+        android:src="@drawable/instagram_icon"
+        android:padding="10dp"
         app:layout_constraintEnd_toStartOf="@+id/saveImage"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,6 +23,7 @@
         android:gravity="center"
         android:text="Instagram Stories"
         android:textSize="12sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/instagramStory"
         app:layout_constraintStart_toStartOf="@+id/instagramStory"
         app:layout_constraintTop_toBottomOf="@+id/instagramStory" />
@@ -37,7 +38,8 @@
         app:layout_constraintEnd_toStartOf="@+id/copyText"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/instagramStory"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/accentColor"/>
 
     <TextView
         android:layout_width="0dp"
@@ -46,6 +48,7 @@
         android:gravity="center"
         android:text="Save Image"
         android:textSize="12sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/saveImage"
         app:layout_constraintStart_toStartOf="@+id/saveImage"
         app:layout_constraintTop_toBottomOf="@+id/saveImage" />
@@ -56,11 +59,12 @@
         android:layout_height="56dp"
         android:layout_marginTop="16dp"
         android:src="@drawable/copy_text_icon"
-        android:padding="6dp"
+        android:padding="8dp"
         app:layout_constraintEnd_toStartOf="@+id/sendText"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/saveImage"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/accentColor"/>
 
     <TextView
         android:layout_width="0dp"
@@ -69,6 +73,7 @@
         android:gravity="center"
         android:text="Copy Text"
         android:textSize="12sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/copyText"
         app:layout_constraintStart_toStartOf="@+id/copyText"
         app:layout_constraintTop_toBottomOf="@+id/copyText" />
@@ -83,7 +88,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/copyText"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/accentColor"/>
 
     <TextView
         android:layout_width="0dp"
@@ -92,6 +98,7 @@
         android:gravity="center"
         android:text="Send Text"
         android:textSize="12sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/sendText"
         app:layout_constraintStart_toStartOf="@+id/sendText"
         app:layout_constraintTop_toBottomOf="@+id/sendText" />

@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -19,6 +20,8 @@ import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -58,6 +61,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var sendBottomSheetDialog: BottomSheetDialog
     private lateinit var translationDialog: BottomSheetDialog
     private var translatedTextView: TextView? = null
+    private var translationProgress: ProgressBar? = null
+    private var copyTranslatedButton: LinearLayout? = null
     private var dynamicBackground = false
     private var quoteToSend: QuoteUiModel? = null
     private var lastColorId = -1
@@ -114,11 +119,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.translation.observe(this) {
             when (it) {
                 is Resource.Success, is Resource.Error -> {
+                    translatedTextView?.visibility = View.VISIBLE
+                    copyTranslatedButton?.visibility = View.VISIBLE
+                    translationProgress?.visibility = View.GONE
                     it.data?.let { translatedTextView?.text = it }
                 }
                 is Resource.Loading -> {
                     translationDialog.show()
-                    translatedTextView?.text = "Переводится..."
+                    translatedTextView?.visibility = View.GONE
+                    copyTranslatedButton?.visibility = View.GONE
+                    translationProgress?.visibility = View.VISIBLE
                 }
             }
         }
@@ -210,6 +220,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             textSize = textSize,
             textColor = color
         )
+        binding.progressCircle.indeterminateTintList = ColorStateList.valueOf(color)
         val fonId = sharedPref.getInt(getString(R.string.background_key), R.drawable.gradient)
         if (fonId == R.drawable.gradient) {
             dynamicBackground = true
@@ -261,6 +272,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         translationDialog = BottomSheetDialog(this)
         translationDialog.setContentView(R.layout.translation_bottom_sheet)
         translatedTextView = translationDialog.findViewById(R.id.translatedTextView)
+        translationProgress = translationDialog.findViewById(R.id.translationProgressBar)
+        copyTranslatedButton = translationDialog.findViewById(R.id.copyTranslationLayout)
+        copyTranslatedButton?.setOnClickListener {
+            val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("text", translatedTextView?.text.toString())
+            clipboardManager.setPrimaryClip(clipData)
+            Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setupSendDialog() {
@@ -315,7 +334,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 "com.instagram.android", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
 
-            startActivity(storiesIntent)
+            try {
+                startActivity(storiesIntent)
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Instagram not found", Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 

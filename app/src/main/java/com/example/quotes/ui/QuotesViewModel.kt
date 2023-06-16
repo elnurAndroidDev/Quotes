@@ -73,12 +73,8 @@ class QuotesViewModel(
             response.body()?.let {
                 if (quotesList.isNotEmpty() && quotesList.last().author == "App")
                     quotesList.remove(quotesList.last())
-                var count = 5
                 for (quote in it) {
-                    count--
                     quotesList.add(quote.toQuoteUiModel())
-                    if (count == 0)
-                        break
                 }
                 return Resource.Success(quotesList.toList())
             }
@@ -87,17 +83,7 @@ class QuotesViewModel(
         return Resource.Error(quotesList.toList())
     }
 
-    /*fun unlikeOnDelete(quoteContent: String) {
-        if (quotesList.isNotEmpty()) {
-            for (quote in quotesList) {
-                if (quote.content == quoteContent && quote.liked)
-                    quote.liked = false
-            }
-            quotes.postValue(Resource.Success(quotesList.toList()))
-        }
-    }
-
-    fun cacheQuotes(quotes: List<QuoteServerModel>) = viewModelScope.launch {
+    /*fun cacheQuotes(quotes: List<QuoteServerModel>) = viewModelScope.launch {
         repository.cacheQuotes(quotes.map { it.toCachedQuoteModel() })
     }
 

@@ -22,7 +22,7 @@
     <string name="quote_size_key">quote_size_key</string>
     <string name="font_key">font_key</string>
     <string name="quote_color_key">quote_color_key</string>
-    <string name="background_key">background_key</string>
+    <string name="background_key">quote_background_key</string>
 
     <string-array name="fonts">
         <item>Satoshi</item>

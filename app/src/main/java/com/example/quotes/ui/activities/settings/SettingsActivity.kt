@@ -39,6 +39,14 @@ class SettingsActivity : AppCompatActivity() {
         setupBottomSheetViews()
         setupViewsFromSharedPreferences()
         showBottomSheetDialog()
+
+        setSupportActionBar(binding.settingsToolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun setupViewsFromSharedPreferences() {
@@ -92,6 +100,12 @@ class SettingsActivity : AppCompatActivity() {
             FonItem("Dynamic Background", R.drawable.gradient),
             FonItem("Star Sky", R.drawable.fon1),
             FonItem("Snow", R.drawable.fon2),
+            FonItem("Car in the forest", R.drawable.fon3),
+            FonItem("Star Sky 2", R.drawable.fon4),
+            FonItem("Rising Bird", R.drawable.fon5),
+            FonItem("Curious Cat", R.drawable.fon6),
+            FonItem("Clear Sky", R.drawable.fon7),
+            FonItem("Zenitsu", R.drawable.fon8)
         )
         val fonsRecyclerView = findViewById<RecyclerView>(R.id.fonsRecyclerView)
         fonsRecyclerView.apply {

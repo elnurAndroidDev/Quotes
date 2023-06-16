@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_margin="8dp"
     android:backgroundTint="@color/white"
     app:cardCornerRadius="16dp"
     app:cardElevation="16dp">
@@ -50,6 +50,7 @@
             android:layout_height="28dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/share"
+            android:backgroundTint="@color/mainColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/sqUnlikeButton" />
 
@@ -59,6 +60,7 @@
             android:layout_height="28dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/heart_filled"
+            android:backgroundTint="@color/mainColor"
             app:layout_constraintBottom_toBottomOf="@id/sqAuthorTextView"
             app:layout_constraintEnd_toStartOf="@id/sqShareButton"
             app:layout_constraintTop_toTopOf="@id/sqAuthorTextView" />

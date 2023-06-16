@@ -4,13 +4,11 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#0d2237</color>
-    <color name="teal_700">#0d2237</color>
+    <color name="teal_700">#1B1B20</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="darkTextColor">#272424</color>
 
-    <color name="mainColor">#44C1B1</color>
-    <color name="mainColorNight">#0d2237</color>
+    <color name="mainColor">#0d2237</color>
 
     <color name="color1">#DFD5B1</color>
     <color name="color2">#B1FA96</color>
